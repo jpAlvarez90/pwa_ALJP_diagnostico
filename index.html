@@ -1,12 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DIAGNOSTICO</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+
 </head>
-<body>
-    <h1>Hello World</h1>
+
+<body onload="listarUsuarios()">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">PWA Diagnostico</a>
+        </div>
+    </nav>
+
+    <div class="container pt-3">
+        <div id="alertaGeneral"></div>
+        <div class="row">
+            <h1>Registro de Usuarios</h1>
+            <div class="container ">
+                <div class="mb-3">
+                    <label for="nombreInput" class="form-label">Nombre</label>
+                    <input id="nombreInput" class="form-control" type="text" placeholder="Ej. Juan Alvarez"
+                        aria-label="default input example">
+                </div>
+                <div class="mb-3">
+                    <label for="puestoInput" class="form-label">Puesto</label>
+                    <input id="puestoInput" class="form-control" type="text" placeholder="Ej. Administrador"
+                        aria-label="default input example">
+                </div>
+                <div class="d-grid">
+                    <button id="registrarButon" class="btn btn-primary" type="button" onclick="registrarUsuario()">Registrar
+                        usuario</button>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col">
+                <h1>Lista de usuarios</h1>
+            </div>
+            <div class="col d-flex align-items-center justify-content-end">
+                <!--<button onclick="listarUsuarios()" class="btn btn-primary">Consultar usuarios</button>-->
+            </div>
+        </div>
+        <div id="listaUsuarios" class="row">
+        </div>
+    </div>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj"
+    crossorigin="anonymous"></script>
+<script>
+
+    async function listarUsuarios() {
+        let url = 'https://reqres.in/api/users';
+        let response = await fetch(url);
+        if (response.ok) {
+            let users = await response.json();
+            users.data.forEach(user => {
+                document.getElementById("listaUsuarios").innerHTML +=
+                    '<div class="card mx-auto my-2" style="width: 16rem">' +
+                    '<img src=' + user.avatar + ' class="card-img-top"' +
+                    '<div class="card-body">' +
+                    '<h5 class="card-title">' + user.email + '</h5>' +
+                    '<p class="card-text">' + user.first_name + ' ' + user.last_name + '</p>' +
+                    '</div>' +
+                    '</div > ';
+            });
+        } else {
+            alert('Hubo un problema al obtener la informacion', 'danger')
+        }
+    }
+    async function registrarUsuario() {
+        let button = document.getElementById("registrarButon")
+        button.setAttribute('disabled', 'disabled')
+        let url = "https://reqres.in/api/users"
+        let usuario = {
+            nombreInput: document.getElementById("nombreInput").value,
+            puestoInput: document.getElementById("puestoInput").value
+        }
+        let response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json;charset=utf-8'
+            },
+            body: JSON.stringify(usuario)
+        })
+        if (response.ok) {
+            let result = await response.json()
+            alert('¡Usuario Registrado exitosamente!', 'success')
+            document.getElementById("nombreInput").value = ''
+            document.getElementById("puestoInput").value = ''
+            button.removeAttribute('disabled', 'disabled')
+        } else {
+            alert('Hubo un problema al obtener la informacion', 'danger')
+            button.removeAttribute('disabled', 'disabled')
+        }
+    }
+    function alert(message, type) {
+        let alertPlaceholder = document.getElementById('alertaGeneral')
+        let wrapper = document.createElement('div')
+        wrapper.innerHTML = '<div class="alert alert-' + type + ' alert-dismissible" role="alert">' +
+            message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>'
+
+        alertPlaceholder.append(wrapper)
+    }
+</script>
+
 </html>
